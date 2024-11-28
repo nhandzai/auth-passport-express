@@ -9,7 +9,7 @@ async function searchProducts(query) {
     where: {
       [db.Sequelize.Op.or]: [
         { name: { [db.Sequelize.Op.like]: `%${query}%` } },
-        { short_description: { [db.Sequelize.Op.like]: `%${query}%` } },
+        { shortDescription: { [db.Sequelize.Op.like]: `%${query}%` } },
         { material: { [db.Sequelize.Op.like]: `%${query}%` } },
         { detail: { [db.Sequelize.Op.like]: `%${query}%` } }
       ]
