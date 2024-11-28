@@ -9,6 +9,9 @@ const aboutUsController = require('../components/about-us/about-us-controller');
 const contactUsController = require('../components/contact-us/contact-us-controller');
 const userController = require('../components/users/users-controller');
 
+//middleware
+const { isAuthenticated } = require('../components/middleware/middleware');
+
 
 async function handleSearchQuery(req, res, next, searchController, defaultController) {
     if (req.query.q || req.query.qf || req.query.minPrice || req.query.maxPrice) {
@@ -26,7 +29,7 @@ router.get('/home', (req, res, next) => {
     handleSearchQuery(req, res, next, catalogController.getSearchProducts, homeController.getHome);
 });
 
-router.get('/catalog', (req, res, next) => {
+router.get('/catalog', isAuthenticated, (req, res, next) => {
     handleSearchQuery(req, res, next, catalogController.handleSearchQuery, catalogController.getCatalog);
 });
 
@@ -42,14 +45,8 @@ router.get('/contact-us', (req, res, next) => {
     handleSearchQuery(req, res, next, catalogController.getSearchProducts, contactUsController.getContactUs);
 });
 
-router.get('/sign-up', (req, res, next) => {
-    handleSearchQuery(req, res, next, catalogController.getSearchProducts, userController.getSignUp);
-});
-
-router.get('/log-in', (req, res, next) => {
-    handleSearchQuery(req, res, next, catalogController.getSearchProducts, userController.getLogin);
-});
-
+router.get('/sign-up', userController.getSignUp);
+router.get('/log-in', userController.getLogin);
 router.get('/log-out', userController.getLogout);
 module.exports = router;
 

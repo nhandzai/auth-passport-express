@@ -60,12 +60,12 @@
       </svg>
 
       <p class="text-xs">
-        <% if (typeof user !=='undefined' && user){ %>
+        <% if (isLoggedIn){ %>
           <p class="text-xs">
             <%= user.fullName %>
           </p class="text-xs">
           <% } else { %>
-            <p class="text-xs">Account</p>
+            <p>Account</p>
             <% } %>
       </p>
 

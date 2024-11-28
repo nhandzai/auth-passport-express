@@ -1,7 +1,7 @@
-const { RefreshToken } = require('../../library/models');
-const userServices = require('./users-service');
 
-var jwt = require('jsonwebtoken');
+const userServices = require('./users-service');
+const passport = require('passport');
+
 const getSignUp = (req, res) => {
     res.render('sign-up', { title: 'Sign Up' });
 };
@@ -20,99 +20,37 @@ const createUser = async (req, res) => {
     }
 };
 
-const authenticateUser = async (req, res) => {
-    const { email, password, rememberMe } = req.body;
-
-    try {
-        const user = await userServices.loginUser(email, password);
-        const accessToken = userServices.generateAccessToken(user);
-
-        const refreshToken = userServices.generateAndStoreRefreshToken(user, rememberMe);
-        req.session.user = user;
-
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'strict',
-            maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000,
-        });
-        res.status(201).json({ message: 'User logged in successfully.', user, accessToken });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-}
-
-const refreshToken = async (req, res) => {
-    const { refreshToken } = req.cookies;
-
-    if (!refreshToken) {
-        return res.status(403).json({ message: 'Refresh token is required.' });
-    }
-
-    try {
-        const storedToken = userServices.findRefreshToken;
-
-        if (!storedToken) {
-            return res.status(403).json({ message: 'Invalid refresh token.' });
+const authenticateUser = async (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+       
+        if (err) {
+            return res.status(500).json({ message: 'Server error during authentication', error: err });
+        }
+        if (!user) {
+            return res.status(400).json({ message: info.message });
         }
 
-        jwt.verify(refreshToken, process.env.JWT_REFRESH, async (err, user) => {
+
+        req.logIn(user, (err) => {
             if (err) {
-                await userServices.deleteRefreshToken
-                return res.status(403).json({ message: 'Refresh token expired or invalid.' });
+                return res.status(500).json({ message: 'Login failed.' });
             }
-
-            const newAccessToken = generateAccessToken(user);
-            const newRefreshToken = await generateAndStoreRefreshToken(user);
-
-            await userServices.deleteRefreshToken
-
-            res.cookie('refreshToken', newRefreshToken, {
-                httpOnly: true,
-                secure: false,
-                sameSite: 'strict',
-            });
-
-            res.status(200).json({ accessToken: newAccessToken });
+            return res.status(200).json({ message: 'Login successful', user });
         });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
+    })(req, res, next);
+}
 const getLogout = (req, res) => {
 
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).json({ message: 'Failed to log out.' });
         }
-
-
-        res.clearCookie('refreshToken');
-
-
         res.redirect('/');
     });
 };
 
-/*
-const logout = async (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
 
-    if (refreshToken) {
-
-        await RefreshToken.destroy({
-            where: { token: refreshToken },
-        });
-
-
-        res.clearCookie('refreshToken');
-        return res.status(200).json({ message: 'Logged out successfully.' });
-    }
-
-    return res.status(400).json({ message: 'No refresh token found.' });
-};
-*/
 module.exports = {
-    createUser, getSignUp, getLogin, authenticateUser, refreshToken, getLogout
+    createUser, getSignUp, getLogin, authenticateUser, getLogout
 };
 
