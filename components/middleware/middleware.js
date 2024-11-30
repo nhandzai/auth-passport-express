@@ -2,6 +2,6 @@ function isAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next(); 
     }
-    res.status(401).send('Bạn cần đăng nhập để truy cập trang này.');
+    res.status(401).send('You have to login to use this feature');
 }
 module.exports = { isAuthenticated };
