@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // Define association here if needed
+      this.hasMany(models.productSizes, { foreignKey: 'productId', as: 'sizes' });
     }
   }
 
@@ -22,14 +22,14 @@ module.exports = (sequelize, DataTypes) => {
     material: DataTypes.STRING,
     weightKg: DataTypes.FLOAT,
     stockQuantity: DataTypes.INTEGER,
-    promotion: DataTypes.INTEGER,
+    realPrice: DataTypes.FLOAT,
     brand: DataTypes.STRING,
     category: DataTypes.STRING,
-    realPrice: {
+    promotion: {
       type: DataTypes.VIRTUAL,
       get() {
-        if (this.price && this.promotion) {
-          return (this.price * (1 - (this.promotion / 100))).toFixed(2);
+        if (this.price && this.realPrice) {
+          return (((this.price - this.realPrice) / this.price) * 100).toFixed(2);
         }
         return this.price;
       }

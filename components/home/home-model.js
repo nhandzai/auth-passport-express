@@ -5,7 +5,7 @@ async function fetchAllProducts() {
 }
 async function sortProductsByPrice(limit) {
   const products = await db.products.findAll({
-    order: [['promotion', 'DESC']],
+    order: [[db.sequelize.literal('(price - realPrice) / price'), 'DESC']],
     limit: limit || 8,
   });
 
