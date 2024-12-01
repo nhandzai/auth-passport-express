@@ -2,8 +2,8 @@ const bcrypt = require('bcryptjs');
 const { User} = require('../../library/models');
 require('dotenv').config();
 
-const registerUser = async (fullName, email, password) => {
-    if (!fullName || !email || !password) {
+const registerUser = async (fullName, email, password, country, city) => {
+    if (!fullName || !email || !password|| !country || !city) {
         throw new Error('All fields are required.');
     }
 
@@ -14,6 +14,8 @@ const registerUser = async (fullName, email, password) => {
             fullName,
             email,
             password: hashedPassword,
+            country,
+            city
         });
 
         return user;

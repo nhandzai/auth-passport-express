@@ -1,6 +1,11 @@
 const { renderAccountPage, renderProfileInformation, renderManageAddress, renderChangePassword } = require("./account-page-view")
-const getAccountPage = (req, res) => {
-    renderAccountPage(req, res);
+const { fetchUserById } = require("./account-page-model")
+const getAccountPage = async (req, res) => {
+    console.log("1111",req.user.id);
+    const abc = await fetchUserById(req.user.id);
+    console.log("abc",abc);
+   
+    renderAccountPage(req, res,abc);
 };
 
 const getProfileInformation = (req, res) => {

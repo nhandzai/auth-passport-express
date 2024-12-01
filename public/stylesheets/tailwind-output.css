@@ -928,6 +928,14 @@ video {
   max-width: 600px;
 }
 
+.max-w-\[1500px\] {
+  max-width: 1500px;
+}
+
+.max-w-\[2000px\] {
+  max-width: 2000px;
+}
+
 .flex-shrink-0 {
   flex-shrink: 0;
 }
@@ -1307,6 +1315,14 @@ video {
 
 .font-normal {
   font-weight: 400;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.lowercase {
+  text-transform: lowercase;
 }
 
 .leading-5 {

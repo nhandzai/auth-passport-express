@@ -10,10 +10,10 @@ const getLogin = (req, res) => {
 }
 
 const createUser = async (req, res) => {
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password, country, city  } = req.body;
 
     try {
-        const user = await userServices.registerUser(fullName, email, password);
+        const user = await userServices.registerUser(fullName, email, password, country, city);
         res.status(201).json({ message: 'User registered successfully.', user });
     } catch (error) {
         res.status(400).json({ message: error.message });

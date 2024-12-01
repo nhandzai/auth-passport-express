@@ -1,6 +1,7 @@
-async function renderAccountPage(req, res) {
+async function renderAccountPage(req, res,User) {
   res.render('account-page', {
     title: 'Account Page',
+    user_db: User
   });
 };
 
