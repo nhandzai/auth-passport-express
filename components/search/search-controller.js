@@ -3,7 +3,7 @@ const { renderSearchPage } = require('./search-view');
 async function getSearch(req,res,next) {
     try {
         if (!req.query.q) {
-            throw new Error('Search query is missing');
+          return res.redirect('/catalog');
         }
         const query = req.query.q;
         let products = await fetchProducts(query);

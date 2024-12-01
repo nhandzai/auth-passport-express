@@ -143,7 +143,9 @@
       <tr>
         <td class="border pl-4 font-bold">Size</td>
         <td class="border pl-4">
-          <%= product.size %>
+          <% sizes.forEach(size=> { %> 
+            <%=size.size%>
+            <% }) %>
         </td>
       </tr>
 
