@@ -13,13 +13,24 @@
       <!-- Error message container -->
 
       <label class="mt-3" for="email">Email Address</label>
-      <input id="email" class="mt-3 border px-4 py-2" type="email" placeholder="user@mail.com" />
-      <div id="emailError" class="text-pink-800 hidden px-3 py-2 mt-2 rounded-md text-sm"></div>
+      <input 
+        id="email" 
+        class="mt-3 border px-4 py-2" 
+        type="email" 
+        placeholder="user@mail.com" 
+        onblur="validateEmail(this)" 
+      />
+      <div id="emailError" class="text-pink-800 hidden px-3 py-2 mt-2 rounded-md text-sm"></div>      
       <!-- Error message container -->
 
       <label class="mt-5" for="password">Password</label>
-      <input id="password" class="mt-3 border px-4 py-2" type="password"
-        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;" />
+      <input 
+        id="password" 
+        class="mt-3 border px-4 py-2" 
+        type="password" 
+        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;" 
+        onblur="validatePassword(this)" 
+      />
       <div id="passwordError" class="text-pink-800 hidden px-3 py-2 mt-2 rounded-md text-sm"></div>
       <!-- Error message container -->
 
@@ -70,6 +81,39 @@
 <!-- /Register Card -->
 
 <script>
+  function validatePassword(inputElement) {
+  const password = inputElement.value.trim();
+  const passwordError = document.getElementById('passwordError');
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  if (!password || !passwordRegex.test(password)) {
+    passwordError.textContent =
+      'Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character.';
+    passwordError.classList.remove('hidden');
+    inputElement.classList.add('border-red-500');
+  } else {
+    passwordError.textContent = '';
+    passwordError.classList.add('hidden');
+    inputElement.classList.remove('border-red-500');
+  }
+}
+
+function validateEmail(inputElement) {
+  const email = inputElement.value.trim();
+  const emailError = document.getElementById('emailError');
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!email || !emailRegex.test(email)) {
+    emailError.textContent = 'Please enter a valid email address.';
+    emailError.classList.remove('hidden');
+    inputElement.classList.add('border-red-500'); 
+  } else {
+    emailError.textContent = '';
+    emailError.classList.add('hidden');
+    inputElement.classList.remove('border-red-500');
+  }
+}
+
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('registerButton').addEventListener('click', async () => {
       const fullName = document.getElementById('name').value.trim();
