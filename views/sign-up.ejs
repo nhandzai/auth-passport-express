@@ -13,13 +13,24 @@
       <!-- Error message container -->
 
       <label class="mt-3" for="email">Email Address</label>
-      <input id="email" class="mt-3 border px-4 py-2" type="email" placeholder="user@mail.com" />
-      <div id="emailError" class="text-pink-800 hidden px-3 py-2 mt-2 rounded-md text-sm"></div>
+      <input 
+        id="email" 
+        class="mt-3 border px-4 py-2" 
+        type="email" 
+        placeholder="user@mail.com" 
+        onblur="validateEmail(this)" 
+      />
+      <div id="emailError" class="text-pink-800 hidden px-3 py-2 mt-2 rounded-md text-sm"></div>      
       <!-- Error message container -->
 
       <label class="mt-5" for="password">Password</label>
-      <input id="password" class="mt-3 border px-4 py-2" type="password"
-        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;" />
+      <input 
+        id="password" 
+        class="mt-3 border px-4 py-2" 
+        type="password" 
+        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;" 
+        onblur="validatePassword(this)" 
+      />
       <div id="passwordError" class="text-pink-800 hidden px-3 py-2 mt-2 rounded-md text-sm"></div>
       <!-- Error message container -->
 
@@ -28,6 +39,16 @@
         placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;" />
       <div id="confirmPasswordError" class="text-pink-800 hidden px-3 py-2 mt-2 rounded-md text-sm"></div>
       <!-- Error message container -->
+
+      <!-- New Fields -->
+      <label class="mt-5" for="country">Country</label>
+      <input id="country" class="mt-3 border px-4 py-2" type="text" placeholder="E.g., USA" />
+      <div id="countryError" class="text-pink-800 hidden px-3 py-2 mt-2 rounded-md text-sm"></div>
+
+      <label class="mt-5" for="city">City</label>
+      <input id="city" class="mt-3 border px-4 py-2" type="text" placeholder="E.g., New York" />
+      <div id="cityError" class="text-pink-800 hidden px-3 py-2 mt-2 rounded-md text-sm"></div>
+      <!-- End of New Fields -->
 
       <div class="mt-4 flex justify-between">
         <div class="flex gap-2">
@@ -60,21 +81,58 @@
 <!-- /Register Card -->
 
 <script>
+  function validatePassword(inputElement) {
+  const password = inputElement.value.trim();
+  const passwordError = document.getElementById('passwordError');
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  if (!password || !passwordRegex.test(password)) {
+    passwordError.textContent =
+      'Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character.';
+    passwordError.classList.remove('hidden');
+    inputElement.classList.add('border-red-500');
+  } else {
+    passwordError.textContent = '';
+    passwordError.classList.add('hidden');
+    inputElement.classList.remove('border-red-500');
+  }
+}
+
+function validateEmail(inputElement) {
+  const email = inputElement.value.trim();
+  const emailError = document.getElementById('emailError');
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!email || !emailRegex.test(email)) {
+    emailError.textContent = 'Please enter a valid email address.';
+    emailError.classList.remove('hidden');
+    inputElement.classList.add('border-red-500'); 
+  } else {
+    emailError.textContent = '';
+    emailError.classList.add('hidden');
+    inputElement.classList.remove('border-red-500');
+  }
+}
+
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('registerButton').addEventListener('click', async () => {
-      const fullName = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
+      const fullName = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
+      const country = document.getElementById('country').value.trim();
+      const city = document.getElementById('city').value.trim();
       const termsAccepted = document.getElementById('termsCheckbox').checked;
 
       // Clear previous error messages
-      document.getElementById('nameError').classList.add('hidden');
-      document.getElementById('emailError').classList.add('hidden');
-      document.getElementById('passwordError').classList.add('hidden');
-      document.getElementById('confirmPasswordError').classList.add('hidden');
+      ['nameError', 'emailError', 'passwordError', 'confirmPasswordError', 'countryError', 'cityError']
+        .forEach(id => document.getElementById(id).classList.add('hidden'));
 
       let hasError = false;
+
+      // Regular expressions for validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
       // Validate form fields
       if (!fullName) {
@@ -83,14 +141,15 @@
         hasError = true;
       }
 
-      if (!email) {
-        document.getElementById('emailError').textContent = 'Email is required.';
+      if (!email || !emailRegex.test(email)) {
+        document.getElementById('emailError').textContent = 'Please enter a valid email address.';
         document.getElementById('emailError').classList.remove('hidden');
         hasError = true;
       }
 
-      if (!password) {
-        document.getElementById('passwordError').textContent = 'Password is required.';
+      if (!password || !passwordRegex.test(password)) {
+        document.getElementById('passwordError').textContent =
+          'Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character.';
         document.getElementById('passwordError').classList.remove('hidden');
         hasError = true;
       }
@@ -98,6 +157,18 @@
       if (password !== confirmPassword) {
         document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
         document.getElementById('confirmPasswordError').classList.remove('hidden');
+        hasError = true;
+      }
+
+      if (!country) {
+        document.getElementById('countryError').textContent = 'Country is required.';
+        document.getElementById('countryError').classList.remove('hidden');
+        hasError = true;
+      }
+
+      if (!city) {
+        document.getElementById('cityError').textContent = 'City is required.';
+        document.getElementById('cityError').classList.remove('hidden');
         hasError = true;
       }
 
@@ -113,7 +184,7 @@
         const response = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fullName, email, password }),
+          body: JSON.stringify({ fullName, email, password, country, city }),
         });
 
         const data = await response.json();

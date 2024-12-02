@@ -14,7 +14,6 @@ async function fetchProducts(query) {
 }
 
 async function fetchFilterProducts(minPrice, maxPrice, queries) {
-
   const products = await searchFilterProducts(minPrice, maxPrice, queries);
   return products;
 }

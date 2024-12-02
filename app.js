@@ -10,6 +10,8 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var registerRouter = require('./routes/api.js');
 var connectDB = require('./config/connectDB.js');
+const passport = require('passport');
+const passportConfig = require('./components/passport/passport.js');
 var app = express();
 connectDB();
 
@@ -26,19 +28,28 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static('public'));
 
-app.use(cors());
-app.use(require('express-ejs-layouts'));
 
 app.use(session({
   secret: process.env.SECRET_KEY,
+
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false }
 }));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use((req, res, next) => {
-  res.locals.user = req.session.user;
+  res.locals.isLoggedIn = req.isAuthenticated();
+  res.locals.user= req.user;
   next();
 });
+
+passportConfig(passport);
+
+app.use(cors());
+app.use(require('express-ejs-layouts'));
+
+
 
 
 app.use('/', indexRouter);

@@ -3,27 +3,22 @@ const { renderCatalogPage } = require('./catalog-view');
 
 async function getCatalog(req, res, next) {
   try {
-    const products = await fetchAllProducts();
-    renderCatalogPage(res, products);
-  } catch (error) {
-    next(error);
-  }
-}
-
-async function getSearchProducts(req, res, next) {
-  try {
-    if (!req.query.q) {
-      throw new Error('Search query is missing');
+    let products = await fetchAllProducts();
+    if ( req.query.qf || req.query.minPrice || req.query.maxPrice){
+      console.log(req.query.qf, req.query.minPrice, req.query.maxPrice);
+      products = await getFilterProducts(req, res);
     }
-    const query = req.query.q;
-    const products = await fetchProducts(query);
+  
+  
     renderCatalogPage(res, products);
   } catch (error) {
     next(error);
   }
 }
 
-async function getFilterProducts(req, res, next) {
+
+
+async function getFilterProducts(req, res) {
   try {
     const queries = req.query.qf || [];
 
@@ -36,30 +31,15 @@ async function getFilterProducts(req, res, next) {
     if (isNaN(maxPrice)) {
       maxPrice = 99999;
     }
-
     const queryArray = Array.isArray(queries) ? queries : [queries];
-    console.log(queryArray, minPrice, maxPrice);
 
     const products = await fetchFilterProducts(minPrice, maxPrice, queryArray);
-    console.log(products);
-    renderCatalogPage(res, products);
+    return products;
   } catch (error) {
-    next(error);
+    throw error;
   }
 }
 
-async function handleSearchQuery(req, res, next) {
-  try {
-    const { qf, minPrice, maxPrice } = req.query;
 
-    if (qf || minPrice || maxPrice) {
-      return getFilterProducts(req, res, next);
-    } else {
-      return getSearchProducts(req, res, next);
-    }
-  } catch (error) {
-    next(error);
-  }
-}
 
-module.exports = { getCatalog, getSearchProducts, getFilterProducts, handleSearchQuery };
+module.exports = { getCatalog, getFilterProducts };

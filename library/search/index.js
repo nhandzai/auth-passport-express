@@ -9,9 +9,7 @@ async function searchProducts(query) {
     where: {
       [db.Sequelize.Op.or]: [
         { name: { [db.Sequelize.Op.like]: `%${query}%` } },
-        { short_description: { [db.Sequelize.Op.like]: `%${query}%` } },
-        { material: { [db.Sequelize.Op.like]: `%${query}%` } },
-        { detail: { [db.Sequelize.Op.like]: `%${query}%` } }
+        { shortDescription: { [db.Sequelize.Op.like]: `%${query}%` } }
       ]
     }
   });
@@ -20,21 +18,23 @@ async function searchProducts(query) {
 }
 
 async function searchFilterProducts(minPrice, maxPrice, queries) {
-  const whereClause = {};
 
+  const whereClause = {};
+  const include = [];
   if (minPrice != null && maxPrice != null) {
-    whereClause.price = {
+    whereClause.realPrice = {
       [db.Sequelize.Op.between]: [minPrice, maxPrice],
     };
   } else if (minPrice != null) {
-    whereClause.price = {
+    whereClause.realPrice = {
       [db.Sequelize.Op.gte]: minPrice,
     };
   } else if (maxPrice != null) {
-    whereClause.price = {
+    whereClause.realPrice = {
       [db.Sequelize.Op.lte]: maxPrice,
     };
   }
+ 
 
   if (queries && queries.length > 0) {
     const categoryQueries = queries.filter(query =>
@@ -59,31 +59,36 @@ async function searchFilterProducts(minPrice, maxPrice, queries) {
       };
     }
 
+    
     if (sizeQueries.length > 0) {
-      whereClause[db.Sequelize.Op.and] = sizeQueries.map(size => ({
-        size: {
-          [db.Sequelize.Op.or]: [
-            { [db.Sequelize.Op.like]: `${size},%` },
-            { [db.Sequelize.Op.like]: `%, ${size},%` },
-            { [db.Sequelize.Op.like]: `%, ${size}` },
-            { [db.Sequelize.Op.eq]: size },
-          ],
+      include.push({
+        model: db.productSizes,
+        as: 'sizes',
+        where: {
+          size: {
+            [db.Sequelize.Op.in]: sizeQueries,
+          }
         },
-      }));
+        required: true,  
+      });
     }
   }
-  const products = await db.products.findAll({
-    where: whereClause,
-  });
+ 
 
-  return products;
+    const products = await db.products.findAll({
+      where: whereClause,
+      include: include,
+    });
+    console.log("products", products);
+    return products;
+  
 }
 async function searchProductsByField({
   field,
   value,
   excludeId,
   limit,
- 
+
 }) {
   if (!field || !value) {
     throw new Error('Field and value are required.');
@@ -103,7 +108,7 @@ async function searchProductsByField({
 
   const queryOptions = {
     where: whereClause,
-    limit: limit || 10, 
+    limit: limit || 10,
   };
 
   const products = await db.products.findAll(queryOptions);
@@ -115,4 +120,4 @@ async function searchProductsByField({
 
 
 
-module.exports = { searchProducts, searchFilterProducts,searchProductsByField };
+module.exports = { searchProducts, searchFilterProducts, searchProductsByField };

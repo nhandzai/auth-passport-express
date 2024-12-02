@@ -39,7 +39,7 @@
     id="sidebar"
     class="hidden w-[300px] flex-shrink-0 px-4 lg:block"
   >
-    <form action="/catalog" method="get" id="catalog-form">
+    <form id="catalog-form">
       <div class="flex border-b pb-5">
         <div class="w-full">
           <p class="mb-3 font-medium">CATEGORIES</p>
@@ -338,35 +338,60 @@
   toggleButton.addEventListener("click", () => {
     sidebar.classList.toggle("hidden");
   });
+  document.getElementById("catalog-form").addEventListener("submit", function(event) {
+    event.preventDefault(); 
+  
+    
+    updateQueryString();
+  });
 
   function updateQueryString() {
     const form = document.getElementById("catalog-form");
     const checkboxes = form.querySelectorAll('input[type="checkbox"]:checked');
     const queryParams = [];
-
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get("q"); 
+  
+    // Check if searchQuery exists, otherwise set a default or handle it
+    if (searchQuery) {
+      queryParams.push(`q=${encodeURIComponent(searchQuery)}`);
+    } 
+    
+  
     checkboxes.forEach((checkbox) => {
       const paramName = checkbox.name;
-      queryParams.push(`${paramName}=` + encodeURIComponent(checkbox.value));
+      queryParams.push(`${paramName}=${encodeURIComponent(checkbox.value)}`);
     });
-
-    const minPrice = document.getElementById("price-min").value;
-    const maxPrice = document.getElementById("price-max").value;
-
-    if (minPrice) queryParams.push(`minPrice=${encodeURIComponent(minPrice)}`);
-    if (maxPrice) queryParams.push(`maxPrice=${encodeURIComponent(maxPrice)}`);
-
+  
+    const minPrice = document.getElementById("price-min").value ;
+    const maxPrice = document.getElementById("price-max").value ;
+  
+    queryParams.push(`minPrice=${minPrice ? encodeURIComponent(minPrice) : ""}`);
+    queryParams.push(`maxPrice=${maxPrice ? encodeURIComponent(maxPrice) : ""}`);
+  
+    // Construct the final query string and update the URL
     if (queryParams.length > 0) {
-      form.action = "/catalog?" + queryParams.join("&");
-    } else {
-      form.action = "/catalog";
+      
+      window.location.search = queryParams.join("&");
+    } else {  
+    
+      window.location.search = "";
     }
-
-    form.submit();
   }
 
   function preserveCheckboxState() {
     const urlParams = new URLSearchParams(window.location.search);
-
+  
+    // Preserve 'q' parameter for the search query
+    const searchQuery = urlParams.get("q");
+    if (searchQuery) {
+      const searchInput = document.querySelector('input[name="q"]');
+      if (searchInput) {
+        searchInput.value = searchQuery;
+      }
+    }
+  
+    // Preserve checked state for 'qf' filters
     const checkedFilters = urlParams.getAll("qf");
     checkedFilters.forEach((filter) => {
       const checkbox = document.getElementById(filter);
@@ -374,10 +399,11 @@
         checkbox.checked = true;
       }
     });
-
+  
+    // Preserve price range values
     const minPrice = urlParams.get("minPrice");
     const maxPrice = urlParams.get("maxPrice");
-
+  
     if (minPrice) {
       document.getElementById("price-min").value = minPrice;
     }
@@ -385,6 +411,7 @@
       document.getElementById("price-max").value = maxPrice;
     }
   }
+  
 
   window.onload = preserveCheckboxState;
 
